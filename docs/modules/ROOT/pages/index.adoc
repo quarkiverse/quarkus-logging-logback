@@ -29,3 +29,24 @@ precidence.
 
 If a console appender is detected in `logback.xml` then the standard Quarkus console logging is disabled, to prevent double
 logging of messages, otherwise it is left enabled and will work as normal.
+
+== Common Problems
+
+=== Duplicate SLF4J bindings
+
+You may see an error similar to below:
+
+```
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/home/stuart/.m2/repository/ch/qos/logback/logback-classic/1.2.3/logback-classic-1.2.3.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/home/stuart/.m2/repository/org/jboss/slf4j/slf4j-jboss-logmanager/1.1.0.Final/slf4j-jboss-logmanager-1.1.0.Final.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [ch.qos.logback.classic.util.ContextSelectorStaticBinder]
+
+```
+
+To get around this you need to exclude the `ch.qos.logback:logback-classic` artifact from your project. Quarkus will automatically
+bring in a modified version at runtime that has had the SLF4J binding removed. Run `mvn dependency:tree` to figure out what is
+bringing in the artifact, and then exclude it from the `pom.xml`.
+
+
