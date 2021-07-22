@@ -36,9 +36,11 @@ import io.quarkus.deployment.annotations.ExecutionTime;
 import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.GeneratedClassBuildItem;
+import io.quarkus.deployment.builditem.HotDeploymentWatchedFileBuildItem;
 import io.quarkus.deployment.builditem.LogHandlerBuildItem;
 import io.quarkus.deployment.builditem.RemovedResourceBuildItem;
 import io.quarkus.deployment.builditem.RunTimeConfigurationDefaultBuildItem;
+import io.quarkus.deployment.builditem.ShutdownContextBuildItem;
 import io.quarkus.deployment.recording.RecorderContext;
 import io.quarkus.gizmo.ClassCreator;
 import io.quarkus.gizmo.FieldDescriptor;
@@ -60,11 +62,17 @@ class LoggingLogbackProcessor {
                 Collections.singleton("org/slf4j/impl/StaticLoggerBinder.class"));
     }
 
+    @BuildStep
+    HotDeploymentWatchedFileBuildItem watchLogback() {
+        return new HotDeploymentWatchedFileBuildItem("logback.xml");
+    }
+
     @Record(ExecutionTime.STATIC_INIT)
     @BuildStep
     void init(LogbackRecorder recorder, RecorderContext context,
             BuildProducer<RunTimeConfigurationDefaultBuildItem> runTimeConfigurationDefaultBuildItemBuildProducer,
-            BuildProducer<GeneratedClassBuildItem> generatedClasses)
+            BuildProducer<GeneratedClassBuildItem> generatedClasses,
+            ShutdownContextBuildItem shutdownContextBuildItem)
             throws JoranException {
         URL url = getUrl();
         if (url == null) {
@@ -110,8 +118,12 @@ class LoggingLogbackProcessor {
             }
         }
 
+        boolean disableConsole = false;
         Set<String> delayedClasses = new HashSet<>();
         for (String i : allClasses) {
+            if (i.equals("ch.qos.logback.core.ConsoleAppender")) {
+                disableConsole = true;
+            }
             try {
                 Class<?> c = Thread.currentThread().getContextClassLoader().loadClass(i);
                 if (LifeCycle.class.isAssignableFrom(c)) {
@@ -120,6 +132,10 @@ class LoggingLogbackProcessor {
             } catch (ClassNotFoundException exception) {
                 throw new RuntimeException(exception);
             }
+        }
+        if (disableConsole) {
+            runTimeConfigurationDefaultBuildItemBuildProducer
+                    .produce(new RunTimeConfigurationDefaultBuildItem("quarkus.log.console.enable", "false"));
         }
 
         for (String i : delayedClasses) {
@@ -147,7 +163,7 @@ class LoggingLogbackProcessor {
                     "quarkus.log.categories.\\\"" + e.getKey() + "\\\".level", e.getValue()));
         }
 
-        recorder.init(events.get(), delayedClasses);
+        recorder.init(events.get(), delayedClasses, shutdownContextBuildItem);
     }
 
     @BuildStep

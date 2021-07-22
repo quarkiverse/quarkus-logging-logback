@@ -19,6 +19,7 @@ import ch.qos.logback.core.joran.event.StartEvent;
 import ch.qos.logback.core.status.StatusUtil;
 import ch.qos.logback.core.util.StatusPrinter;
 import io.quarkus.runtime.RuntimeValue;
+import io.quarkus.runtime.ShutdownContext;
 import io.quarkus.runtime.annotations.Recorder;
 
 @Recorder
@@ -29,7 +30,7 @@ public class LogbackRecorder {
 
     public static final List<DelayedStart> DELAYED_START_HANDLERS = new ArrayList<>();
 
-    public void init(List<SaxEvent> configEvents, Set<String> delayedStartClasses) {
+    public void init(List<SaxEvent> configEvents, Set<String> delayedStartClasses, ShutdownContext context) {
         if (defaultLoggerContext == null) {
             for (SaxEvent i : configEvents) {
                 if (i instanceof StartEvent) {
@@ -55,6 +56,13 @@ public class LogbackRecorder {
             } catch (Exception t) { // see LOGBACK-1159
                 Util.report("Failed to instantiate [" + LoggerContext.class.getName() + "]", t);
             }
+            context.addLastShutdownTask(new Runnable() {
+                @Override
+                public void run() {
+                    defaultLoggerContext.stop();
+                    defaultLoggerContext = null;
+                }
+            });
         }
     }
 

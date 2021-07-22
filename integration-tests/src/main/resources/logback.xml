@@ -1,14 +1,14 @@
 <configuration>
 
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <!-- encoders are assigned the type
-             ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>target/tests.log</file>
+        <append>false</append>
         <encoder>
-            <pattern>LOGBACK- %msg%n</pattern>
+            <pattern>LOGBACK- %-5level %msg %n</pattern>
         </encoder>
     </appender>
 
     <root level="debug">
-        <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE" />
     </root>
 </configuration>

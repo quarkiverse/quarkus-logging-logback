@@ -1,7 +1,8 @@
 = Quarkus - Logging Logback
 :extension-status: preview
 
-Describe what the extension does here.
+This extension allows you to use Logback to configure Quarkus logging via `logback.xml`. This extension parses the config
+file at build time, and then bridges the resulting config with jboss-logmanager.
 
 == Installation
 
@@ -16,7 +17,15 @@ In your `pom.xml` file, add:
 </dependency>
 ----
 
-[[extension-configuration-reference]]
-== Extension Configuration Reference
+== Technical Details
 
-include::config.adoc[leveloffset=+1, opts=optional]
+This extension does not actually replace jboss-logmanager as the default logging engine, instead it bridges to the two,
+to allow them to co-exist. JBoss Logging is still the core logmanager for Quarkus, however any logging events it receives
+are also sent to the logback and will be sent through any logback appenders.
+
+Log levels for loggers are also parsed, and are used to set the default log level for the corresponding jboss-logmanager
+loggers. These defaults can still be overriden however, so if you set a log level in `application.properties` it will take
+precidence.
+
+If a console appender is detected in `logback.xml` then the standard Quarkus console logging is disabled, to prevent double
+logging of messages, otherwise it is left enabled and will work as normal.

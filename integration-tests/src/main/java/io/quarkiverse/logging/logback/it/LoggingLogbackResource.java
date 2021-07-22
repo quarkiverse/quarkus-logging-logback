@@ -23,7 +23,6 @@ import javax.ws.rs.Path;
 @Path("/logging-logback")
 @ApplicationScoped
 public class LoggingLogbackResource {
-    // add some rest methods here
 
     @GET
     public String hello() {
