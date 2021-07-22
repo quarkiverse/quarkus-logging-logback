@@ -70,9 +70,9 @@ class LoggingLogbackProcessor {
         if (url == null) {
             return;
         }
-        context.registerSubstitution(StartEvent.class, StartSub.class, EventSubstitution.class);
-        context.registerSubstitution(BodyEvent.class, BodySub.class, EventSubstitution.class);
-        context.registerSubstitution(EndEvent.class, EndSub.class, EventSubstitution.class);
+        context.registerSubstitution(StartEvent.class, StartSub.class, (Class) EventSubstitution.class);
+        context.registerSubstitution(BodyEvent.class, BodySub.class, (Class) EventSubstitution.class);
+        context.registerSubstitution(EndEvent.class, EndSub.class, (Class) EventSubstitution.class);
         final AtomicReference<List<SaxEvent>> events = new AtomicReference<>();
 
         JoranConfigurator configurator = new JoranConfigurator() {
