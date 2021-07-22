@@ -67,6 +67,9 @@ public class LogbackRecorder {
 
             @Override
             public final void doPublish(final ExtLogRecord record) {
+                if (defaultLoggerContext == null) {
+                    return;
+                }
                 Logger logger = defaultLoggerContext.getLogger(record.getLoggerName());
                 logger.callAppenders(new LoggingEventWrapper(record, getFormatter()));
             }
