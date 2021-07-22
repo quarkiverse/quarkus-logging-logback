@@ -13,8 +13,9 @@
   <packaging>pom</packaging>
   <name>Quarkus - Logging Logback - Parent</name>
   <modules>
-    <module>deployment</module>
     <module>runtime</module>
+    <module>deployment</module>
+    <module>impl</module>
   </modules>
   <properties>
     <compiler-plugin.version>3.8.1</compiler-plugin.version>
@@ -39,6 +40,26 @@
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
         <version>${logback.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.quarkiverse.logging.logback</groupId>
+        <artifactId>quarkus-logging-logback</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.quarkiverse.logging.logback</groupId>
+        <artifactId>quarkus-logging-logback-deployment</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.quarkiverse.logging.logback</groupId>
+        <artifactId>quarkus-logging-logback-impl</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.quarkiverse.logging.logback</groupId>
+        <artifactId>quarkus-logging-logback-impl-deployment</artifactId>
+        <version>${project.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
