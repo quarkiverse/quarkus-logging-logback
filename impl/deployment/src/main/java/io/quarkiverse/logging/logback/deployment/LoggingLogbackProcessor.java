@@ -1,5 +1,23 @@
 package io.quarkiverse.logging.logback.deployment;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
+
+import org.jboss.logging.Logger;
+
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.classic.util.ContextInitializer;
@@ -35,23 +53,6 @@ import io.quarkus.gizmo.ClassCreator;
 import io.quarkus.gizmo.FieldDescriptor;
 import io.quarkus.gizmo.MethodCreator;
 import io.quarkus.gizmo.MethodDescriptor;
-import org.jboss.logging.Logger;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
 
 class LoggingLogbackProcessor {
 
@@ -78,9 +79,9 @@ class LoggingLogbackProcessor {
     @Record(ExecutionTime.STATIC_INIT)
     @BuildStep
     void init(LogbackRecorder recorder, RecorderContext context,
-              BuildProducer<RunTimeConfigurationDefaultBuildItem> runTimeConfigurationDefaultBuildItemBuildProducer,
-              BuildProducer<GeneratedClassBuildItem> generatedClasses,
-              ShutdownContextBuildItem shutdownContextBuildItem)
+            BuildProducer<RunTimeConfigurationDefaultBuildItem> runTimeConfigurationDefaultBuildItemBuildProducer,
+            BuildProducer<GeneratedClassBuildItem> generatedClasses,
+            ShutdownContextBuildItem shutdownContextBuildItem)
             throws Exception {
         //first check the versions
         doVersionCheck();
@@ -205,7 +206,8 @@ class LoggingLogbackProcessor {
         if (coreVersion != null) {
             if (coreVersion.compareTo(compiledVersion) < 0) {
                 throw new RuntimeException("ch.qos.logback:logback-core version " + coreVersion
-                        + " is not compatible with quarkus-logback which requires at least " + compiledVersion + " please use the correct logback version");
+                        + " is not compatible with quarkus-logback which requires at least " + compiledVersion
+                        + " please use the correct logback version");
             }
             if (classicVersion != null) {
                 if (classicVersion.compareTo(coreVersion) != 0) {
