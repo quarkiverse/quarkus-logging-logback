@@ -1,6 +1,8 @@
 package io.quarkiverse.logging.logback.deployment;
 
+import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -8,9 +10,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+
+import org.jboss.logging.Logger;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
@@ -29,6 +34,7 @@ import io.quarkiverse.logback.runtime.events.EndSub;
 import io.quarkiverse.logback.runtime.events.EventSubstitution;
 import io.quarkiverse.logback.runtime.events.StartSub;
 import io.quarkus.bootstrap.model.AppArtifactKey;
+import io.quarkus.bootstrap.resolver.update.DefaultArtifactVersion;
 import io.quarkus.deployment.GeneratedClassGizmoAdaptor;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
@@ -48,6 +54,8 @@ import io.quarkus.gizmo.MethodCreator;
 import io.quarkus.gizmo.MethodDescriptor;
 
 class LoggingLogbackProcessor {
+
+    private static final Logger log = Logger.getLogger(LoggingLogbackProcessor.class);
 
     private static final String FEATURE = "logging-logback";
 
@@ -73,7 +81,45 @@ class LoggingLogbackProcessor {
             BuildProducer<RunTimeConfigurationDefaultBuildItem> runTimeConfigurationDefaultBuildItemBuildProducer,
             BuildProducer<GeneratedClassBuildItem> generatedClasses,
             ShutdownContextBuildItem shutdownContextBuildItem)
-            throws JoranException {
+            throws Exception {
+        //first check the versions
+        DefaultArtifactVersion compiledVersion;
+        DefaultArtifactVersion coreVersion = null;
+        DefaultArtifactVersion classicVersion = null;
+        try (InputStream in = getClass().getClassLoader().getResourceAsStream("quarkus-logback-version.txt")) {
+            compiledVersion = new DefaultArtifactVersion(new String(in.readAllBytes(), StandardCharsets.UTF_8));
+        }
+        try (InputStream in = getClass().getClassLoader()
+                .getResourceAsStream("META-INF/maven/ch.qos.logback/logback-core/pom.properties")) {
+            if (in != null) {
+                Properties p = new Properties();
+                p.load(in);
+                coreVersion = new DefaultArtifactVersion(p.getProperty("version"));
+            }
+        }
+        try (InputStream in = getClass().getClassLoader()
+                .getResourceAsStream("META-INF/maven/ch.qos.logback/logback-classic/pom.properties")) {
+            if (in != null) {
+                Properties p = new Properties();
+                p.load(in);
+                classicVersion = new DefaultArtifactVersion(p.getProperty("version"));
+            }
+        }
+        if (coreVersion != null) {
+            if (coreVersion.compareTo(compiledVersion) < 0) {
+                throw new RuntimeException("Old logback version " + coreVersion
+                        + " is not compatible with quarkus-logback which requires at least " + compiledVersion);
+            }
+            if (classicVersion != null) {
+                if (classicVersion.compareTo(coreVersion) != 0) {
+                    throw new RuntimeException("logback-core(" + coreVersion + ") and logback-classic(" + classicVersion
+                            + ") versions must match");
+                }
+            }
+        } else {
+            log.warn("Could not determine logback version on class path");
+        }
+
         URL url = getUrl();
         if (url == null) {
             return;

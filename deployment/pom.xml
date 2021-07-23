@@ -21,7 +21,7 @@
     </dependency>
     <dependency>
       <groupId>io.quarkiverse.logging.logback</groupId>
-      <artifactId>quarkus-logging-logback-impl</artifactId>
+      <artifactId>quarkus-logging-logback-impl-deployment</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>
