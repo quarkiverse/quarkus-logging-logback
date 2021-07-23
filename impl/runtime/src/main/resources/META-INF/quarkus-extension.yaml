@@ -1,9 +1,4 @@
-name: Logging Logback
-#description: Logging Logback ...
+artifact: ${project.groupId}:${project.artifactId}:${project.version}
+name: Logging Logback Implementation
 metadata:
-#  keywords:
-#    - logging-logback
-#  guide: ...
-#  categories:
-#    - "miscellaneous"
-#  status: "preview"
+  unlisted: true

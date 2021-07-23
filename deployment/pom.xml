@@ -8,6 +8,7 @@
   </parent>
   <artifactId>quarkus-logging-logback-deployment</artifactId>
   <name>Quarkus - Logging Logback - Deployment</name>
+  <description>Logback support for Quarkus, deployment module</description>
   <dependencies>
     <dependency>
       <groupId>io.quarkiverse.logging.logback</groupId>

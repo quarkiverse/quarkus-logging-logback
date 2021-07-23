@@ -8,6 +8,7 @@
   </parent>
   <artifactId>quarkus-logging-logback-impl</artifactId>
   <name>Quarkus - Logging Logback Impl - Runtime</name>
+  <description>The implementation part of the Logback extension</description>
   <dependencies>
     <dependency>
       <groupId>io.quarkus</groupId>
