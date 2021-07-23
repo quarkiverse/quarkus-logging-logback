@@ -48,5 +48,3 @@ SLF4J: Actual binding is of type [ch.qos.logback.classic.util.ContextSelectorSta
 To get around this you need to exclude the `ch.qos.logback:logback-classic` artifact from your project. Quarkus will automatically
 bring in a modified version at runtime that has had the SLF4J binding removed. Run `mvn dependency:tree` to figure out what is
 bringing in the artifact, and then exclude it from the `pom.xml`.
-
-
