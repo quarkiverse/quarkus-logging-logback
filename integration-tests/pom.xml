@@ -4,7 +4,7 @@
   <parent>
     <groupId>io.quarkiverse.logging.logback</groupId>
     <artifactId>quarkus-logging-logback-parent</artifactId>
-    <version>0.2.0-SNAPSHOT</version>
+    <version>0.1.1</version>
   </parent>
   <artifactId>quarkus-logging-logback-integration-tests</artifactId>
   <name>Quarkus - Logging Logback - Integration Tests</name>
