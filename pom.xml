@@ -12,9 +12,9 @@
   <packaging>pom</packaging>
   <name>Quarkus - Logging Logback - Parent</name>
   <modules>
+    <module>impl</module>
     <module>runtime</module>
     <module>deployment</module>
-    <module>impl</module>
   </modules>
   <properties>
     <compiler-plugin.version>3.8.1</compiler-plugin.version>
@@ -76,6 +76,12 @@
         </plugin>
       </plugins>
     </pluginManagement>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
   </build>
   <profiles>
     <profile>
