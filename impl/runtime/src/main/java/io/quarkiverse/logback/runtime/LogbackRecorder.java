@@ -14,13 +14,21 @@ import org.xml.sax.helpers.AttributesImpl;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.joran.event.BodyEvent;
 import ch.qos.logback.core.joran.event.SaxEvent;
 import ch.qos.logback.core.joran.event.StartEvent;
 import ch.qos.logback.core.status.StatusUtil;
 import ch.qos.logback.core.util.StatusPrinter;
+import io.quarkiverse.logback.runtime.events.BodySub;
+import io.quarkiverse.logback.runtime.events.EventSubstitution;
 import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.ShutdownContext;
 import io.quarkus.runtime.annotations.Recorder;
+import io.quarkus.runtime.configuration.ConfigurationException;
+import io.smallrye.common.expression.Expression;
+import io.smallrye.config.ConfigValue;
+import io.smallrye.config.SmallRyeConfig;
+import io.smallrye.config.SmallRyeConfigProviderResolver;
 
 @Recorder
 public class LogbackRecorder {
@@ -30,9 +38,12 @@ public class LogbackRecorder {
 
     public static final List<DelayedStart> DELAYED_START_HANDLERS = new ArrayList<>();
 
-    public void init(List<SaxEvent> configEvents, Set<String> delayedStartClasses, ShutdownContext context) {
+    public void init(List<SaxEvent> originalEvents, Set<String> delayedStartClasses, ShutdownContext context) {
+        EventSubstitution substitution = new EventSubstitution();
         if (defaultLoggerContext == null) {
-            for (SaxEvent i : configEvents) {
+            SmallRyeConfig config = (SmallRyeConfig) SmallRyeConfigProviderResolver.instance().getConfig();
+            List<SaxEvent> configEvents = new ArrayList<>();
+            for (SaxEvent i : originalEvents) {
                 if (i instanceof StartEvent) {
                     AttributesImpl impl = (AttributesImpl) ((StartEvent) i).attributes;
                     int index = impl.getIndex("class");
@@ -42,6 +53,25 @@ public class LogbackRecorder {
                             impl.setValue(index, val + DELAYED);
                         }
                     }
+                    for (int j = 1; j <= impl.getLength(); ++j) {
+                        String val = impl.getValue(index);
+                        if (val != null && val.contains("${")) {
+                            final String expanded = doExpand(config, val);
+                            impl.setValue(j, expanded);
+                        }
+                    }
+                    configEvents.add(i);
+                } else if (i instanceof BodyEvent) {
+                    String val = ((BodyEvent) i).getText();
+                    if (val.contains("${")) {
+                        final String expanded = doExpand(config, val);
+                        configEvents.add(substitution.deserialize(
+                                new BodySub(i.getNamespaceURI(), i.getLocalName(), i.getQName(), i.getLocator(), expanded)));
+                    } else {
+                        configEvents.add(i);
+                    }
+                } else {
+                    configEvents.add(i);
                 }
             }
             defaultLoggerContext = new LoggerContext();
@@ -64,6 +94,21 @@ public class LogbackRecorder {
                 }
             });
         }
+    }
+
+    private String doExpand(SmallRyeConfig config, String val) {
+        Expression expression = Expression.compile(val);
+        final String expanded = expression.evaluate((resolveContext, stringBuilder) -> {
+            final ConfigValue resolve = config.getConfigValue(resolveContext.getKey());
+            if (resolve != null) {
+                stringBuilder.append(resolve.getValue());
+            } else if (resolveContext.hasDefault()) {
+                resolveContext.expandDefault();
+            } else {
+                throw new ConfigurationException("Cannot expand " + val + " missing config key " + resolveContext.getKey());
+            }
+        });
+        return expanded;
     }
 
     public RuntimeValue<Optional<Handler>> createHandler() {
