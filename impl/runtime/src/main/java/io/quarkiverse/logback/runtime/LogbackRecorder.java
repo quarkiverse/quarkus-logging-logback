@@ -37,6 +37,15 @@ public class LogbackRecorder {
     private static volatile LoggerContext defaultLoggerContext;
 
     public static final List<DelayedStart> DELAYED_START_HANDLERS = new ArrayList<>();
+    private static volatile boolean started;
+
+    public static void addDelayed(DelayedStart delayedStart) {
+        if (started) {
+            delayedStart.doQuarkusDelayedStart();
+        } else {
+            DELAYED_START_HANDLERS.add(delayedStart);
+        }
+    }
 
     public void init(List<SaxEvent> originalEvents, Set<String> delayedStartClasses, ShutdownContext context) {
         EventSubstitution substitution = new EventSubstitution();
@@ -91,6 +100,7 @@ public class LogbackRecorder {
                 public void run() {
                     defaultLoggerContext.stop();
                     defaultLoggerContext = null;
+                    started = false;
                 }
             });
         }
@@ -112,6 +122,7 @@ public class LogbackRecorder {
     }
 
     public RuntimeValue<Optional<Handler>> createHandler() {
+        started = true;
         for (DelayedStart i : DELAYED_START_HANDLERS) {
             i.doQuarkusDelayedStart();
         }
