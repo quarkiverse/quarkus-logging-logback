@@ -24,7 +24,6 @@ import io.quarkiverse.logback.runtime.events.EventSubstitution;
 import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.ShutdownContext;
 import io.quarkus.runtime.annotations.Recorder;
-import io.quarkus.runtime.configuration.ConfigurationException;
 import io.smallrye.common.expression.Expression;
 import io.smallrye.config.ConfigValue;
 import io.smallrye.config.SmallRyeConfig;
@@ -37,6 +36,15 @@ public class LogbackRecorder {
     private static volatile LoggerContext defaultLoggerContext;
 
     public static final List<DelayedStart> DELAYED_START_HANDLERS = new ArrayList<>();
+    private static volatile boolean started;
+
+    public static void addDelayed(DelayedStart delayedStart) {
+        if (started) {
+            delayedStart.doQuarkusDelayedStart();
+        } else {
+            DELAYED_START_HANDLERS.add(delayedStart);
+        }
+    }
 
     public void init(List<SaxEvent> originalEvents, Set<String> delayedStartClasses, ShutdownContext context) {
         EventSubstitution substitution = new EventSubstitution();
@@ -91,6 +99,7 @@ public class LogbackRecorder {
                 public void run() {
                     defaultLoggerContext.stop();
                     defaultLoggerContext = null;
+                    started = false;
                 }
             });
         }
@@ -100,18 +109,19 @@ public class LogbackRecorder {
         Expression expression = Expression.compile(val);
         final String expanded = expression.evaluate((resolveContext, stringBuilder) -> {
             final ConfigValue resolve = config.getConfigValue(resolveContext.getKey());
-            if (resolve != null) {
+            if (resolve.getValue() != null) {
                 stringBuilder.append(resolve.getValue());
             } else if (resolveContext.hasDefault()) {
                 resolveContext.expandDefault();
             } else {
-                throw new ConfigurationException("Cannot expand " + val + " missing config key " + resolveContext.getKey());
+                stringBuilder.append("${" + resolveContext.getKey() + "}");
             }
         });
         return expanded;
     }
 
     public RuntimeValue<Optional<Handler>> createHandler() {
+        started = true;
         for (DelayedStart i : DELAYED_START_HANDLERS) {
             i.doQuarkusDelayedStart();
         }

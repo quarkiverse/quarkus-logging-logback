@@ -50,7 +50,6 @@ import io.quarkus.deployment.builditem.RunTimeConfigurationDefaultBuildItem;
 import io.quarkus.deployment.builditem.ShutdownContextBuildItem;
 import io.quarkus.deployment.recording.RecorderContext;
 import io.quarkus.gizmo.ClassCreator;
-import io.quarkus.gizmo.FieldDescriptor;
 import io.quarkus.gizmo.MethodCreator;
 import io.quarkus.gizmo.MethodDescriptor;
 
@@ -156,8 +155,8 @@ class LoggingLogbackProcessor {
                             (Function<String, String>) s -> s.substring(s.length() - LogbackRecorder.DELAYED.length())),
                     i + LogbackRecorder.DELAYED, null, i, DelayedStart.class.getName())) {
                 MethodCreator start = c.getMethodCreator("start", void.class);
-                start.invokeInterfaceMethod(MethodDescriptor.ofMethod(List.class, "add", boolean.class, Object.class),
-                        start.readStaticField(FieldDescriptor.of(LogbackRecorder.class, "DELAYED_START_HANDLERS", List.class)),
+                start.invokeStaticMethod(
+                        MethodDescriptor.ofMethod(LogbackRecorder.class, "addDelayed", void.class, DelayedStart.class),
                         start.getThis());
                 start.returnValue(null);
                 MethodCreator method = c.getMethodCreator("doQuarkusDelayedStart", void.class);
