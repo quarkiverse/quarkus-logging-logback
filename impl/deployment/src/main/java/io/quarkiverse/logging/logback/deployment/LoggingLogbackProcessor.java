@@ -15,6 +15,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.jboss.logging.Logger;
 
@@ -48,6 +49,8 @@ import io.quarkus.deployment.builditem.LogHandlerBuildItem;
 import io.quarkus.deployment.builditem.RemovedResourceBuildItem;
 import io.quarkus.deployment.builditem.RunTimeConfigurationDefaultBuildItem;
 import io.quarkus.deployment.builditem.ShutdownContextBuildItem;
+import io.quarkus.deployment.pkg.builditem.CurateOutcomeBuildItem;
+import io.quarkus.deployment.pkg.builditem.OutputTargetBuildItem;
 import io.quarkus.deployment.recording.RecorderContext;
 import io.quarkus.gizmo.ClassCreator;
 import io.quarkus.gizmo.MethodCreator;
@@ -58,6 +61,7 @@ class LoggingLogbackProcessor {
     private static final Logger log = Logger.getLogger(LoggingLogbackProcessor.class);
 
     private static final String FEATURE = "logging-logback";
+    public static final String PROJECT_VERSION = "project.version";
 
     @BuildStep
     FeatureBuildItem feature() {
@@ -80,6 +84,8 @@ class LoggingLogbackProcessor {
     void init(LogbackRecorder recorder, RecorderContext context,
             BuildProducer<RunTimeConfigurationDefaultBuildItem> runTimeConfigurationDefaultBuildItemBuildProducer,
             BuildProducer<GeneratedClassBuildItem> generatedClasses,
+            OutputTargetBuildItem outputTargetBuildItem,
+            CurateOutcomeBuildItem curateOutcomeBuildItem,
             ShutdownContextBuildItem shutdownContextBuildItem)
             throws Exception {
         //first check the versions
@@ -174,7 +180,10 @@ class LoggingLogbackProcessor {
                     "quarkus.log.categories.\\\"" + e.getKey() + "\\\".level", e.getValue()));
         }
 
-        recorder.init(events.get(), delayedClasses, shutdownContextBuildItem);
+        Map<String, String> buildProperties = new HashMap<>(outputTargetBuildItem.getBuildSystemProperties()
+                .entrySet().stream().collect(Collectors.toMap(Object::toString, Object::toString)));
+        buildProperties.put(PROJECT_VERSION, curateOutcomeBuildItem.getEffectiveModel().getAppArtifact().getVersion());
+        recorder.init(events.get(), delayedClasses, shutdownContextBuildItem, buildProperties);
     }
 
     private void doVersionCheck() throws IOException {

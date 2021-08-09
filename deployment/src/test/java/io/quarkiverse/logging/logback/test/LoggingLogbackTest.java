@@ -3,6 +3,7 @@ package io.quarkiverse.logging.logback.test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -22,7 +23,9 @@ public class LoggingLogbackTest {
 
     @Test
     public void testLogFile() throws IOException {
-        for (String line : Files.readAllLines(Paths.get("target/tests.log"))) {
+        List<String> strings = Files.readAllLines(Paths.get("target/tests.log"));
+        Assertions.assertFalse(strings.isEmpty());
+        for (String line : strings) {
             Assertions.assertTrue(line.startsWith("LOGBACK"));
         }
     }
