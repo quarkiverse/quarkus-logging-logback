@@ -65,7 +65,7 @@ public class LoggingEventWrapper implements ILoggingEvent {
 
     @Override
     public LoggerContextVO getLoggerContextVO() {
-        return null;
+        return LogbackRecorder.defaultLoggerContext.getLoggerContextRemoteView();
     }
 
     @Override
