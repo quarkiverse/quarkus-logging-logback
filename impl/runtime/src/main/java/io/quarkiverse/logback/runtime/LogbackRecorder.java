@@ -34,7 +34,7 @@ import io.smallrye.config.SmallRyeConfigProviderResolver;
 public class LogbackRecorder {
 
     public static final String DELAYED = "$$delayed";
-    private static volatile LoggerContext defaultLoggerContext;
+    static volatile LoggerContext defaultLoggerContext;
 
     public static final List<DelayedStart> DELAYED_START_HANDLERS = new ArrayList<>();
     private static volatile boolean started;
