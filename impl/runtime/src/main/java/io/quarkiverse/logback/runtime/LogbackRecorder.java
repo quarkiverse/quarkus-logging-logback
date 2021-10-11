@@ -2,6 +2,7 @@ package io.quarkiverse.logback.runtime;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Handler;
@@ -46,7 +47,8 @@ public class LogbackRecorder {
         }
     }
 
-    public void init(List<SaxEvent> originalEvents, Set<String> delayedStartClasses, ShutdownContext context) {
+    public void init(List<SaxEvent> originalEvents, Set<String> delayedStartClasses, ShutdownContext context,
+            Map<String, String> buildSystemProps) {
         EventSubstitution substitution = new EventSubstitution();
         if (defaultLoggerContext == null) {
             SmallRyeConfig config = (SmallRyeConfig) SmallRyeConfigProviderResolver.instance().getConfig();
@@ -64,7 +66,7 @@ public class LogbackRecorder {
                     for (int j = 1; j <= impl.getLength(); ++j) {
                         String val = impl.getValue(index);
                         if (val != null && val.contains("${")) {
-                            final String expanded = doExpand(config, val);
+                            final String expanded = doExpand(config, val, buildSystemProps);
                             impl.setValue(j, expanded);
                         }
                     }
@@ -72,7 +74,7 @@ public class LogbackRecorder {
                 } else if (i instanceof BodyEvent) {
                     String val = ((BodyEvent) i).getText();
                     if (val.contains("${")) {
-                        final String expanded = doExpand(config, val);
+                        final String expanded = doExpand(config, val, buildSystemProps);
                         configEvents.add(substitution.deserialize(
                                 new BodySub(i.getNamespaceURI(), i.getLocalName(), i.getQName(), i.getLocator(), expanded)));
                     } else {
@@ -105,12 +107,14 @@ public class LogbackRecorder {
         }
     }
 
-    private String doExpand(SmallRyeConfig config, String val) {
+    private String doExpand(SmallRyeConfig config, String val, Map<String, String> buildSystemProps) {
         Expression expression = Expression.compile(val);
         final String expanded = expression.evaluate((resolveContext, stringBuilder) -> {
             final ConfigValue resolve = config.getConfigValue(resolveContext.getKey());
             if (resolve.getValue() != null) {
                 stringBuilder.append(resolve.getValue());
+            } else if (buildSystemProps.containsKey(resolveContext.getKey())) {
+                stringBuilder.append(buildSystemProps.get(resolveContext.getKey()));
             } else if (resolveContext.hasDefault()) {
                 resolveContext.expandDefault();
             } else {
