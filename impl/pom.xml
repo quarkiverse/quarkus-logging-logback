@@ -4,10 +4,10 @@
   <parent>
     <groupId>io.quarkiverse.logging.logback</groupId>
     <artifactId>quarkus-logging-logback-parent</artifactId>
-    <version>0.7.0</version>
+    <version>0.8.0-SNAPSHOT</version>
   </parent>
   <artifactId>quarkus-logging-logback-impl-parent</artifactId>
-  <version>0.7.0</version>
+  <version>0.8.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Quarkus - Logging Logback Impl- Parent</name>
   <modules>
