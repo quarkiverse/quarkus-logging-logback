@@ -177,7 +177,7 @@ class LoggingLogbackProcessor {
         }
         for (Map.Entry<String, String> e : levels.entrySet()) {
             runTimeConfigurationDefaultBuildItemBuildProducer.produce(new RunTimeConfigurationDefaultBuildItem(
-                    "quarkus.log.categories.\\\"" + e.getKey() + "\\\".level", e.getValue()));
+                    "quarkus.log.category.\"" + e.getKey() + "\".level", e.getValue()));
         }
 
         Map<String, String> buildProperties = new HashMap<>(outputTargetBuildItem.getBuildSystemProperties()
