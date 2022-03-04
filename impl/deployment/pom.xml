@@ -15,6 +15,10 @@
       <artifactId>quarkus-arc-deployment</artifactId>
     </dependency>
     <dependency>
+      <groupId>io.smallrye.common</groupId>
+      <artifactId>smallrye-common-version</artifactId>
+    </dependency>
+    <dependency>
       <groupId>io.quarkiverse.logging.logback</groupId>
       <artifactId>quarkus-logging-logback-impl</artifactId>
       <version>${project.version}</version>
