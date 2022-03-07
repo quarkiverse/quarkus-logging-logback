@@ -3,6 +3,8 @@
 [![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
+[![Version](https://img.shields.io/maven-central/v/io.quarkiverse.logging.logback/quarkus-logging-logback?logo=apache-maven&style=flat-square)](https://search.maven.org/artifact/io.quarkiverse.logging.logback/quarkus-logging-logback)
+
 This extension allows you to use `logback.xml` to configure logback appenders and control log levels.
 
 Documentation is at https://quarkiverse.github.io/quarkiverse-docs/quarkus-logging-logback/dev/index.html
