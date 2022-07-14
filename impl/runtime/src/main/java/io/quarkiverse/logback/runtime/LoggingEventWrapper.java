@@ -14,6 +14,7 @@ import ch.qos.logback.classic.spi.ThrowableProxy;
 
 public class LoggingEventWrapper implements ILoggingEvent {
 
+    private StackTraceElement[] callerData;
     final ExtLogRecord logRecord;
     final Formatter formatter;
 
@@ -78,12 +79,24 @@ public class LoggingEventWrapper implements ILoggingEvent {
 
     @Override
     public StackTraceElement[] getCallerData() {
-        return null;
+        if (callerData == null) {
+            callerData = new StackTraceElement[] {
+                    new StackTraceElement(
+                            null,
+                            logRecord.getSourceModuleName(),
+                            logRecord.getSourceModuleVersion(),
+                            logRecord.getSourceClassName(),
+                            logRecord.getSourceMethodName(),
+                            logRecord.getSourceFileName(),
+                            logRecord.getSourceLineNumber())
+            };
+        }
+        return callerData;
     }
 
     @Override
     public boolean hasCallerData() {
-        return false;
+        return getCallerData() != null;
     }
 
     @Override
