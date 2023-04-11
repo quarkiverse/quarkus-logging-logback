@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -236,7 +238,17 @@ class LoggingLogbackProcessor {
     }
 
     private URL getUrl() {
-        URL url = Loader.getResource(ContextInitializer.TEST_AUTOCONFIG_FILE, Thread.currentThread().getContextClassLoader());
+        ContextInitializer contextInitializer = new ContextInitializer(new LoggerContext());
+        URL url = contextInitializer.findURLOfDefaultConfigurationFile(true);
+        if (url != null) {
+            // Check that file exists at URL
+            if (Files.notExists(Paths.get(url.getPath()))) {
+                log.warn("Logback configuration file not found at " + url + ", using default configuration");
+            } else {
+                return url;
+            }
+        }
+        url = Loader.getResource(ContextInitializer.TEST_AUTOCONFIG_FILE, Thread.currentThread().getContextClassLoader());
         if (url != null) {
             return url;
         }
