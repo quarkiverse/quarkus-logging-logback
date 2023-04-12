@@ -1,10 +1,12 @@
 package io.quarkiverse.logback.runtime;
 
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Formatter;
 
 import org.jboss.logmanager.ExtLogRecord;
 import org.slf4j.Marker;
+import org.slf4j.event.KeyValuePair;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -122,5 +124,31 @@ public class LoggingEventWrapper implements ILoggingEvent {
     @Override
     public void prepareForDeferredProcessing() {
 
+    }
+
+    @Override
+    public List<Marker> getMarkerList() {
+        Marker marker = getMarker();
+
+        if (marker == null) {
+            return List.of();
+        }
+
+        return List.of(marker);
+    }
+
+    @Override
+    public int getNanoseconds() {
+        return 0;
+    }
+
+    @Override
+    public long getSequenceNumber() {
+        return logRecord.getSequenceNumber();
+    }
+
+    @Override
+    public List<KeyValuePair> getKeyValuePairs() {
+        return List.of();
     }
 }

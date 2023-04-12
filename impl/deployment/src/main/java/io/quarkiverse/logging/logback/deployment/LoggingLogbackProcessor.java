@@ -18,6 +18,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.jboss.logging.Logger;
+import org.xml.sax.InputSource;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
@@ -25,6 +26,7 @@ import ch.qos.logback.classic.util.ContextInitializer;
 import ch.qos.logback.core.joran.event.BodyEvent;
 import ch.qos.logback.core.joran.event.EndEvent;
 import ch.qos.logback.core.joran.event.SaxEvent;
+import ch.qos.logback.core.joran.event.SaxEventRecorder;
 import ch.qos.logback.core.joran.event.StartEvent;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.spi.LifeCycle;
@@ -101,10 +103,13 @@ class LoggingLogbackProcessor {
         final AtomicReference<List<SaxEvent>> events = new AtomicReference<>();
 
         JoranConfigurator configurator = new JoranConfigurator() {
+
             @Override
-            public void doConfigure(List<SaxEvent> eventList) throws JoranException {
-                events.set(eventList);
-            }
+            public SaxEventRecorder populateSaxEventRecorder(InputSource inputSource) throws JoranException {
+                SaxEventRecorder recorder = super.populateSaxEventRecorder(inputSource);
+                events.set(recorder.getSaxEventList());
+                return recorder;
+            };
         };
         configurator.setContext(new LoggerContext());
         configurator.doConfigure(url);

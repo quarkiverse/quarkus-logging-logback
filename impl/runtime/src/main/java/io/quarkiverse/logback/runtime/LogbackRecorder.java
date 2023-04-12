@@ -10,6 +10,7 @@ import java.util.logging.Handler;
 import org.jboss.logmanager.ExtHandler;
 import org.jboss.logmanager.ExtLogRecord;
 import org.slf4j.helpers.Util;
+import org.xml.sax.InputSource;
 import org.xml.sax.helpers.AttributesImpl;
 
 import ch.qos.logback.classic.Logger;
@@ -17,7 +18,9 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.event.BodyEvent;
 import ch.qos.logback.core.joran.event.SaxEvent;
+import ch.qos.logback.core.joran.event.SaxEventRecorder;
 import ch.qos.logback.core.joran.event.StartEvent;
+import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.status.StatusUtil;
 import ch.qos.logback.core.util.StatusPrinter;
 import io.quarkiverse.logback.runtime.events.BodySub;
@@ -86,9 +89,20 @@ public class LogbackRecorder {
             }
             defaultLoggerContext = new LoggerContext();
             try {
-                JoranConfigurator configurator = new JoranConfigurator();
+                JoranConfigurator configurator = new JoranConfigurator() {
+
+                    @Override
+                    public SaxEventRecorder populateSaxEventRecorder(InputSource inputSource) throws JoranException {
+                        SaxEventRecorder recorder = new SaxEventRecorder(context) {
+                            public List<SaxEvent> getSaxEventList() {
+                                return configEvents;
+                            }
+                        };
+                        return recorder;
+                    };
+                };
                 configurator.setContext(defaultLoggerContext);
-                configurator.doConfigure(configEvents);
+                configurator.doConfigure((InputSource) null);
                 // logback-292
                 if (!StatusUtil.contextHasStatusListener(defaultLoggerContext)) {
                     StatusPrinter.printInCaseOfErrorsOrWarnings(defaultLoggerContext);
