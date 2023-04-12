@@ -189,10 +189,10 @@ class LoggingLogbackProcessor {
     private void doVersionCheck() throws IOException {
         //if the versions are wrong you get really hard to understand errors
         //easier to just verify this ourselves
-        VersionScheme versionScheme = VersionScheme.MAVEN;
         String compiledVersion;
         String coreVersion = null;
         String classicVersion = null;
+
         try (InputStream in = getClass().getClassLoader().getResourceAsStream("quarkus-logback-version.txt")) {
             compiledVersion = new String(in.readAllBytes(), StandardCharsets.UTF_8);
         }
@@ -213,13 +213,13 @@ class LoggingLogbackProcessor {
             }
         }
         if (coreVersion != null) {
-            if (versionScheme.compare(coreVersion, compiledVersion) < 0) {
+            if (VersionScheme.MAVEN.compare(coreVersion, compiledVersion) < 0) {
                 throw new RuntimeException("ch.qos.logback:logback-core version " + coreVersion
                         + " is not compatible with quarkus-logback which requires at least " + compiledVersion
                         + " please use the correct logback version");
             }
             if (classicVersion != null) {
-                if (versionScheme.compare(classicVersion, coreVersion) != 0) {
+                if (VersionScheme.MAVEN.compare(classicVersion, coreVersion) != 0) {
                     throw new RuntimeException("logback-core(" + coreVersion + ") and logback-classic(" + classicVersion
                             + ") versions must match");
                 }
