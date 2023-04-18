@@ -187,7 +187,7 @@ class LoggingLogbackProcessor {
 
         Map<String, String> buildProperties = new HashMap<>(outputTargetBuildItem.getBuildSystemProperties()
                 .entrySet().stream().collect(Collectors.toMap(Object::toString, Object::toString)));
-        buildProperties.put(PROJECT_VERSION, curateOutcomeBuildItem.getEffectiveModel().getAppArtifact().getVersion());
+        buildProperties.put(PROJECT_VERSION, curateOutcomeBuildItem.getApplicationModel().getAppArtifact().getVersion());
         recorder.init(events.get(), delayedClasses, shutdownContextBuildItem, buildProperties);
     }
 
