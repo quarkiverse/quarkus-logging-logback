@@ -16,6 +16,11 @@
     <module>runtime</module>
     <module>deployment</module>
   </modules>
+  <scm>
+    <connection>scm:git:git@github.com:quarkiverse/quarkus-logging-logback.git</connection>
+    <developerConnection>scm:git:git@github.com:quarkiverse/quarkus-logging-logback.git</developerConnection>
+    <url>https://github.com/quarkiverse/quarkus-logging-logback</url>
+  </scm>
   <properties>
     <compiler-plugin.version>3.11.0</compiler-plugin.version>
     <maven.compiler.parameters>true</maven.compiler.parameters>
