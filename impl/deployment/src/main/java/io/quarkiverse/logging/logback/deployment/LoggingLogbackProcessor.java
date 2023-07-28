@@ -29,6 +29,7 @@ import ch.qos.logback.core.joran.event.SaxEvent;
 import ch.qos.logback.core.joran.event.SaxEventRecorder;
 import ch.qos.logback.core.joran.event.StartEvent;
 import ch.qos.logback.core.joran.spi.JoranException;
+import ch.qos.logback.core.joran.spi.NoAutoStart;
 import ch.qos.logback.core.spi.LifeCycle;
 import ch.qos.logback.core.util.Loader;
 import io.quarkiverse.logback.runtime.DelayedStart;
@@ -148,7 +149,7 @@ class LoggingLogbackProcessor {
             }
             try {
                 Class<?> c = Thread.currentThread().getContextClassLoader().loadClass(i);
-                if (LifeCycle.class.isAssignableFrom(c)) {
+                if (LifeCycle.class.isAssignableFrom(c) && c.getAnnotation(NoAutoStart.class) == null) {
                     delayedClasses.add(i);
                 }
             } catch (ClassNotFoundException exception) {
