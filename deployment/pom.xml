@@ -13,7 +13,6 @@
     <dependency>
       <groupId>io.quarkiverse.logging.logback</groupId>
       <artifactId>quarkus-logging-logback</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
