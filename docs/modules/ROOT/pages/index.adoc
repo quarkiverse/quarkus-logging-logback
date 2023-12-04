@@ -12,8 +12,9 @@ In your `pom.xml` file, add:
 [source,xml]
 ----
 <dependency>
-    <groupId>io.quarkiverse.logging.logback</groupId>
-    <artifactId>quarkus-logging-logback</artifactId>
+  <groupId>io.quarkiverse.logging.logback</groupId>
+  <artifactId>quarkus-logging-logback</artifactId>
+  <version>0.2.0</version>
 </dependency>
 ----
 
