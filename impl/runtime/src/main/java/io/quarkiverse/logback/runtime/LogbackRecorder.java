@@ -66,8 +66,8 @@ public class LogbackRecorder {
                             impl.setValue(index, val + DELAYED);
                         }
                     }
-                    for (int j = 1; j <= impl.getLength(); ++j) {
-                        String val = impl.getValue(index);
+                    for (int j = 0; j < impl.getLength(); j++) {
+                        String val = impl.getValue(j);
                         if (val != null && val.contains("${")) {
                             final String expanded = doExpand(config, val, buildSystemProps);
                             impl.setValue(j, expanded);
