@@ -67,7 +67,7 @@ public class LogbackRecorder {
                         }
                     }
                     for (int j = 1; j <= impl.getLength(); ++j) {
-                        String val = impl.getValue(index);
+                        String val = impl.getValue(j);
                         if (val != null && val.contains("${")) {
                             final String expanded = doExpand(config, val, buildSystemProps);
                             impl.setValue(j, expanded);
