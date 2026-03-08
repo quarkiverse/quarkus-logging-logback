@@ -38,7 +38,6 @@ import io.quarkiverse.logback.runtime.events.BodySub;
 import io.quarkiverse.logback.runtime.events.EndSub;
 import io.quarkiverse.logback.runtime.events.EventSubstitution;
 import io.quarkiverse.logback.runtime.events.StartSub;
-import io.quarkus.bootstrap.model.AppArtifactKey;
 import io.quarkus.deployment.GeneratedClassGizmoAdaptor;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
@@ -57,6 +56,7 @@ import io.quarkus.deployment.recording.RecorderContext;
 import io.quarkus.gizmo.ClassCreator;
 import io.quarkus.gizmo.MethodCreator;
 import io.quarkus.gizmo.MethodDescriptor;
+import io.quarkus.maven.dependency.ArtifactKey;
 import io.smallrye.common.version.VersionScheme;
 
 class LoggingLogbackProcessor {
@@ -73,7 +73,7 @@ class LoggingLogbackProcessor {
 
     @BuildStep
     RemovedResourceBuildItem removeSlf4jBinding() {
-        return new RemovedResourceBuildItem(new AppArtifactKey("ch.qos.logback", "logback-classic", null, "jar"),
+        return new RemovedResourceBuildItem(ArtifactKey.of("ch.qos.logback", "logback-classic", null, "jar"),
                 Collections.singleton("org/slf4j/impl/StaticLoggerBinder.class"));
     }
 
