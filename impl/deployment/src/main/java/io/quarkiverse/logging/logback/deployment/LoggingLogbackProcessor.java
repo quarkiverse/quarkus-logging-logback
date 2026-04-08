@@ -4,15 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -23,11 +15,7 @@ import org.xml.sax.InputSource;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.classic.util.ContextInitializer;
-import ch.qos.logback.core.joran.event.BodyEvent;
-import ch.qos.logback.core.joran.event.EndEvent;
-import ch.qos.logback.core.joran.event.SaxEvent;
-import ch.qos.logback.core.joran.event.SaxEventRecorder;
-import ch.qos.logback.core.joran.event.StartEvent;
+import ch.qos.logback.core.joran.event.*;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.joran.spi.NoAutoStart;
 import ch.qos.logback.core.spi.LifeCycle;
@@ -38,25 +26,19 @@ import io.quarkiverse.logback.runtime.events.BodySub;
 import io.quarkiverse.logback.runtime.events.EndSub;
 import io.quarkiverse.logback.runtime.events.EventSubstitution;
 import io.quarkiverse.logback.runtime.events.StartSub;
-import io.quarkus.bootstrap.model.AppArtifactKey;
 import io.quarkus.deployment.GeneratedClassGizmoAdaptor;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.ExecutionTime;
 import io.quarkus.deployment.annotations.Record;
-import io.quarkus.deployment.builditem.FeatureBuildItem;
-import io.quarkus.deployment.builditem.GeneratedClassBuildItem;
-import io.quarkus.deployment.builditem.HotDeploymentWatchedFileBuildItem;
-import io.quarkus.deployment.builditem.LogHandlerBuildItem;
-import io.quarkus.deployment.builditem.RemovedResourceBuildItem;
-import io.quarkus.deployment.builditem.RunTimeConfigurationDefaultBuildItem;
-import io.quarkus.deployment.builditem.ShutdownContextBuildItem;
+import io.quarkus.deployment.builditem.*;
 import io.quarkus.deployment.pkg.builditem.CurateOutcomeBuildItem;
 import io.quarkus.deployment.pkg.builditem.OutputTargetBuildItem;
 import io.quarkus.deployment.recording.RecorderContext;
 import io.quarkus.gizmo.ClassCreator;
 import io.quarkus.gizmo.MethodCreator;
 import io.quarkus.gizmo.MethodDescriptor;
+import io.quarkus.maven.dependency.ArtifactKey;
 import io.smallrye.common.version.VersionScheme;
 
 class LoggingLogbackProcessor {
@@ -73,7 +55,7 @@ class LoggingLogbackProcessor {
 
     @BuildStep
     RemovedResourceBuildItem removeSlf4jBinding() {
-        return new RemovedResourceBuildItem(new AppArtifactKey("ch.qos.logback", "logback-classic", null, "jar"),
+        return new RemovedResourceBuildItem(ArtifactKey.of("ch.qos.logback", "logback-classic", null, "jar"),
                 Collections.singleton("org/slf4j/impl/StaticLoggerBinder.class"));
     }
 
