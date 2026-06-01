@@ -5,21 +5,16 @@ on:
     paths:
       - '.github/project.yml'
 
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  release:
-    runs-on: ubuntu-latest
-    name: pre release
-
-    steps:
-      - uses: smallrye/project-metadata-action@62527b4a896343d4c0c6b2a61eff07f6b59fcbd8 # main
-        name: retrieve project metadata
-        id: metadata
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          metadata-file-path: '.github/project.yml'
-
-      - name: Validate version
-        if: contains(steps.metadata.outputs.current-version, 'SNAPSHOT')
-        run: |
-          echo '::error::Cannot release a SNAPSHOT version.'
-          exit 1
+  pre-release:
+    name: Pre-Release
+    uses: quarkiverse/.github/.github/workflows/pre-release.yml@main
+    secrets: inherit
